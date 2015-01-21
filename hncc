@@ -1,0 +1,9 @@
+Question 1
+==========
+You're given a 1.0 GB file full of 8 bit integers. Sort the integers.
+(After you've conceptually solved this, if you want to actually implement this, you might want to figure out a way to generate a binary file with 8bit random integers, and a way to parse back these numbers and sort them.) 
+
+Question 2
+==========
+Given a binary tree, check that it is a binary search tree. 
+If you want to implement this, first decide on how you would represent binary trees in your favorite language, and then code your bst-checking algorithm.
