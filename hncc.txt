@@ -7,3 +7,10 @@ Question 2
 ==========
 Given a binary tree, check that it is a binary search tree. 
 If you want to implement this, first decide on how you would represent binary trees in your favorite language, and then code your bst-checking algorithm.
+
+Code golf
+==========
+1. Write a program to output 2015. You cannot use the digits 0-9 in your program, nor can you use modules like date or time or a carefully chosen random-seed. Whoever writes this using the fewest possible character wins!
+
+2. This is a classic problem: write a quine, i.e. a non-empty program that takes no input and produces a copy of its own source code as its only output. Don't google for answers! Try to come up with one in your favorite language. 
+(Note: This might take you multiple days - but it's one of the most fun problems to think about in computer science)
