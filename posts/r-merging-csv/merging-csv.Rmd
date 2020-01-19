@@ -1,0 +1,124 @@
+---
+title: "Merging CSV files"
+output:
+  html_notebook:
+    code_folding: show
+    toc: yes
+    theme: cerulean
+  html_document:
+    df_print: paged
+    toc: yes
+  pdf_document: default
+---
+
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 14px;
+  }
+td {  /* Table  */
+  font-size: 14px;
+}
+h1.title {
+  font-size: 38px;
+}
+h1 { /* Header 1 */
+  font-size: 28px;
+}
+h2 { /* Header 2 */
+    font-size: 22px;
+}
+h3 { /* Header 3 */
+  font-size: 18px;
+}
+code.r{ /* Code block */
+    font-size: 14px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 14px;
+}
+</style>
+
+# Problem
+We have a few CSV files that have the same columns. We want to merge them together while retaining information about which file each row came from. 
+
+# Data
+Let's say the CSV files are `file{1,2,3,4}.csv`. This is `file1.csv`:
+
+```{r message=FALSE}
+library(tidyverse)
+read_csv("file1.csv")
+```
+The other three files are similar. 
+
+# Solution summary
+
+This is the complete solution using tidyverse libraries:
+
+```{r message=FALSE}
+library(tidyverse)
+csv_names = paste0("file", 1:4, ".csv") 
+csv_names %>% map(read_csv) %>% set_names(csv_names) %>% bind_rows(.id = "file")
+```
+
+# Breaking it down 
+
+## Making the list of files 
+
+The first step is to get all the file names in a list. If your filenames have a regular pattern, you can construct that easily with `paste`. `paste0` is a special case of paste with the joining delimiter set to `""`. 
+
+```{r}
+csv_names = paste0("file", 1:4, ".csv") 
+csv_names
+```
+
+## Import each of them 
+
+Now we want to import each of these files into a data frame (technically a tibble since we're using tidyverse). Fortunately `purr` has a map function that works very similarly to map function in Javascript, which I therefore found much more intuitive to use than the more popular `lapply` variety of functions in R.  
+
+```{r message=FALSE}
+csv_dfs = csv_names %>% map(read_csv)
+
+length(csv_dfs)
+csv_dfs[[3]]
+```
+
+## Joining them together
+
+The [`bind_rows`](https://dplyr.tidyverse.org/reference/bind.html) function binds rows together, and has a handy `.id` argument that creates a new column holding data that links back the rows to the data frames they came from. 
+
+```{r rows.print=8}
+csv_dfs %>% bind_rows(.id="filename")
+```
+
+This is still not quite exactly what we want, because unless we name the elements in our list, bind_rows does not does not know what to put in the `.id` column, so it just uses a numeric sequence instead. `lists` in R are almost like dictionaries in python, but some elements only has a value and no key. Right now our list has only values and no keys. Setting the name for all of them can be done in one shot using `set_names`.
+
+```{r message=FALSE}
+csv_dfs = csv_names %>% map(read_csv) %>% set_names(csv_names)
+
+names(csv_dfs)
+csv_dfs$file3.csv
+```
+
+Now `bind_rows` can use these names to set the values in the `.id` column: 
+
+```{r}
+csv_dfs %>% bind_rows(.id="filename")
+```
+
+
+We're done! 
+
+##  Modifying each csv before merging
+
+You may want to modify each individual CSV before merging. For example, your original csv files may have 100s of columns but you only want to keep a few, and you don't want to merge first and then select for efficiency. It is easy to do so by creating a wrapper function around `read_csv`: 
+
+```{r message=FALSE}
+
+csv_extract = function(csv_name) {
+  read_csv(csv_name) %>% 
+    select(Red, Blue, Green)  # Dropping Yellow because we're not interested.
+}
+csv_names = paste0("file", 1:4, ".csv") 
+csv_names %>% map(csv_extract) %>% set_names(csv_names) %>% bind_rows(.id = "file")
+```
