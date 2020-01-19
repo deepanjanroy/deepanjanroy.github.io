@@ -1,5 +1,5 @@
 ---
-title: "Merging CSV files"
+title: "Merging CSV files in R"
 output:
   html_notebook:
     code_folding: show
